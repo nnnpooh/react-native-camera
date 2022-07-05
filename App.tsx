@@ -4,10 +4,10 @@ import {NativeBaseProvider, VStack, Text, Button} from 'native-base';
 import {useCameraDevices, Camera} from 'react-native-vision-camera';
 import {useScanBarcodes, BarcodeFormat} from 'vision-camera-code-scanner';
 import {StyleSheet} from 'react-native';
-import {scanBarcodes} from 'vision-camera-code-scanner';
-import {runOnJS} from 'react-native-reanimated';
-import {useFrameProcessor} from 'react-native-vision-camera';
-import {RNHoleView} from 'react-native-hole-view';
+// import {scanBarcodes} from 'vision-camera-code-scanner';
+// import {runOnJS} from 'react-native-reanimated';
+// import {useFrameProcessor} from 'react-native-vision-camera';
+// import {RNHoleView} from 'react-native-hole-view';
 
 const App: FC = () => {
   const [hasPermission, setHasPermission] = useState('');
