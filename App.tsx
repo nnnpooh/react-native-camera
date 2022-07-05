@@ -1,16 +1,17 @@
 import 'react-native-reanimated';
+import React, {FC, useEffect, useState} from 'react';
+import {NativeBaseProvider, VStack, Text, Button} from 'native-base';
+import {useCameraDevices, Camera} from 'react-native-vision-camera';
+import {useScanBarcodes, BarcodeFormat} from 'vision-camera-code-scanner';
+import {StyleSheet} from 'react-native';
 import {scanBarcodes} from 'vision-camera-code-scanner';
 import {runOnJS} from 'react-native-reanimated';
 import {useFrameProcessor} from 'react-native-vision-camera';
-import React, {FC, useEffect, useState} from 'react';
-import {NativeBaseProvider, VStack, Text} from 'native-base';
-import {useCameraDevices, Camera} from 'react-native-vision-camera';
-import {useScanBarcodes, BarcodeFormat} from 'vision-camera-code-scanner';
 import {RNHoleView} from 'react-native-hole-view';
-import {StyleSheet} from 'react-native';
+
 const App: FC = () => {
   const [hasPermission, setHasPermission] = useState('');
-  const [isScanned, setIsScanned] = useState(false);
+  const [isActive, setIsActive] = useState(false);
   const [barCodeArray, setBarCodeArray] = useState<any[]>([]);
   useEffect(() => {
     const checkCameraPermission = async () => {
@@ -34,7 +35,6 @@ const App: FC = () => {
 
   const devices = useCameraDevices();
   const device = devices.back;
-
   const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE], {
     checkInverted: true,
   });
@@ -42,8 +42,7 @@ const App: FC = () => {
   // console.log({barcodes});
 
   const toggleActiveState = async () => {
-    if (barcodes && barcodes.length > 0 && isScanned === false) {
-      setIsScanned(true);
+    if (barcodes && barcodes.length > 0) {
       setBarCodeArray([]);
       barcodes.forEach(async (scannedBarcode: any) => {
         if (scannedBarcode.rawValue !== '') {
@@ -60,24 +59,51 @@ const App: FC = () => {
   console.log(barCodeArray);
   return (
     <NativeBaseProvider>
-      {device && (
+      {device && isActive && (
         <Camera
           style={StyleSheet.absoluteFill}
           device={device}
-          isActive={true}
+          isActive={isActive}
           audio={false}
           frameProcessor={frameProcessor}
           frameProcessorFps={5}
         />
       )}
-      <VStack>
-        {barCodeArray.map(el => (
-          <Text>{el}</Text>
-        ))}
-        <Text>Camera permission: {hasPermission}</Text>
+      <VStack alignItems={'center'} space={4} mt={4}>
+        {/* <Text>Camera permission: {hasPermission}</Text> */}
+        {!isActive ? (
+          <Button
+            onPress={() => {
+              setIsActive(true);
+              setBarCodeArray([]);
+            }}>
+            Camera On
+          </Button>
+        ) : (
+          <Button
+            onPress={() => {
+              setIsActive(false);
+              setBarCodeArray([]);
+            }}
+            colorScheme="secondary">
+            Camera Off
+          </Button>
+        )}
+
+        {isActive && barCodeArray.length > 0 && (
+          <VStack
+            alignItems={'center'}
+            bg="primary.100"
+            p={3}
+            borderRadius="lg">
+            {barCodeArray.map(el => (
+              <Text key={el}>{el}</Text>
+            ))}
+          </VStack>
+        )}
       </VStack>
 
-      <RNHoleView
+      {/* <RNHoleView
         holes={[{x: 50, y: 390, width: 120, height: 120, borderRadius: 60}]}
         style={{
           position: 'absolute',
@@ -88,7 +114,7 @@ const App: FC = () => {
           justifyContent: 'center',
           backgroundColor: 'rgba(0,0,0,0.5)',
         }}
-      />
+      /> */}
     </NativeBaseProvider>
   );
 };
