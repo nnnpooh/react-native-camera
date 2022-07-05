@@ -10,7 +10,8 @@ import {RNHoleView} from 'react-native-hole-view';
 import {StyleSheet} from 'react-native';
 const App: FC = () => {
   const [hasPermission, setHasPermission] = useState('');
-  const [barCodes, setBarcodes] = useState<any>('');
+  const [isScanned, setIsScanned] = useState(false);
+  const [barCodeArray, setBarCodeArray] = useState<any[]>([]);
   useEffect(() => {
     const checkCameraPermission = async () => {
       try {
@@ -34,22 +35,29 @@ const App: FC = () => {
   const devices = useCameraDevices();
   const device = devices.back;
 
-  const [barcodes, frameProcessor] = useScanBarcodes([BarcodeFormat.QR_CODE], {
+  const [frameProcessor, barcodes] = useScanBarcodes([BarcodeFormat.QR_CODE], {
     checkInverted: true,
   });
 
-  console.log({barcodes});
+  // console.log({barcodes});
+
+  const toggleActiveState = async () => {
+    if (barcodes && barcodes.length > 0 && isScanned === false) {
+      setIsScanned(true);
+      setBarCodeArray([]);
+      barcodes.forEach(async (scannedBarcode: any) => {
+        if (scannedBarcode.rawValue !== '') {
+          setBarCodeArray(prev => [...prev, scannedBarcode.rawValue]);
+        }
+      });
+    }
+  };
 
   useEffect(() => {
-    console.log('here');
-    const toggleActiveState = async () => {
-      if (barcodes && barcodes.length > 0) {
-        console.log({barcodes});
-      }
-    };
     toggleActiveState();
   }, [barcodes]);
 
+  console.log(barCodeArray);
   return (
     <NativeBaseProvider>
       {device && (
@@ -63,8 +71,24 @@ const App: FC = () => {
         />
       )}
       <VStack>
+        {barCodeArray.map(el => (
+          <Text>{el}</Text>
+        ))}
         <Text>Camera permission: {hasPermission}</Text>
       </VStack>
+
+      <RNHoleView
+        holes={[{x: 50, y: 390, width: 120, height: 120, borderRadius: 60}]}
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          alignSelf: 'center',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+        }}
+      />
     </NativeBaseProvider>
   );
 };
