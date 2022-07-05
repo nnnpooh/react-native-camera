@@ -15,7 +15,7 @@
   - `import 'react-native-reanimated`
 - Add in `.babel.config.js`
 
-```
+```javascript
 plugins: [
     [
       'react-native-reanimated/plugin',
@@ -31,4 +31,26 @@ plugins: [
 ```
 rm -rf package-lock.json && rm -rf yarn.lock && rm -rf node_modules
 npm i  # or "yarn"
+```
+
+- When using `frameProcessor`, you need to use real device **without** the debug mode.
+
+```html
+<Camera
+  style="{StyleSheet.absoluteFill}"
+  device="{device}"
+  isActive="{isActive}"
+  audio="{false}"
+  frameProcessor="{frameProcessor}"
+  frameProcessorFps="{5}" />
+```
+
+- You can test the camera without `frameProcessor`
+
+```html
+<Camera
+  style="{StyleSheet.absoluteFill}"
+  device="{device}"
+  isActive="{isActive}"
+  audio="{false}" />
 ```
